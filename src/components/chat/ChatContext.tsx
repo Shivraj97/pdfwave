@@ -43,26 +43,19 @@ export const ChatContextProvider = ({ fileId, children }: Props) => {
       }
       return response.body;
     },
-    onMutate: async () => {
+    onMutate: async ({ message }) => {
       backupMessage.current = message;
       setMessage("");
 
       // step 1
-      // Cancel any outgoing refetches
-      // (so they don't overwrite our optimistic update)
       await utils.getFileMessages.cancel();
 
       // step 2
-      // Snapshot the previous value
       const previousMessages = utils.getFileMessages.getInfiniteData();
 
       // step 3
-      // Optimistically update to the new value
       utils.getFileMessages.setInfiniteData(
-        {
-          fileId,
-          limit: INFINITE_QUERY_LIMIT,
-        },
+        { fileId, limit: INFINITE_QUERY_LIMIT },
         (old) => {
           if (!old) {
             return {
@@ -73,7 +66,7 @@ export const ChatContextProvider = ({ fileId, children }: Props) => {
 
           let newPages = [...old.pages];
 
-          let latestPage = newPages[0];
+          let latestPage = newPages[0]!;
 
           latestPage.messages = [
             {
@@ -93,12 +86,12 @@ export const ChatContextProvider = ({ fileId, children }: Props) => {
           };
         }
       );
+
       setIsLoading(true);
 
-      // Return a context object with the snapshotted value
       return {
         previousMessages:
-          previousMessages?.pages?.flatMap((page) => page.messages) ?? [],
+          previousMessages?.pages.flatMap((page) => page.messages) ?? [],
       };
     },
     onSuccess: async (stream) => {
@@ -123,17 +116,15 @@ export const ChatContextProvider = ({ fileId, children }: Props) => {
         const { value, done: doneReading } = await reader.read();
         done = doneReading;
         const chunkValue = decoder.decode(value);
+
         accResponse += chunkValue;
 
         // append chunk to the actual message
         utils.getFileMessages.setInfiniteData(
           { fileId, limit: INFINITE_QUERY_LIMIT },
           (old) => {
-            if (!old)
-              return {
-                pages: [],
-                pageParams: [],
-              };
+            if (!old) return { pages: [], pageParams: [] };
+
             let isAiResponseCreated = old.pages.some((page) =>
               page.messages.some((message) => message.id === "ai-response")
             );
@@ -163,17 +154,22 @@ export const ChatContextProvider = ({ fileId, children }: Props) => {
                     return message;
                   });
                 }
+
                 return {
                   ...page,
                   messages: updatedMessages,
                 };
               }
+
               return page;
             });
+
+            return { ...old, pages: updatedPages };
           }
         );
       }
     },
+
     // If the mutation fails,
     // use the context returned from onMutate to roll back
     onError: async (_, __, context) => {

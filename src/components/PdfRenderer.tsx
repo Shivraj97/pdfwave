@@ -163,7 +163,7 @@ function PdfRenderer({ url }: Props) {
           <div ref={ref}>
             <Document
               loading={
-                <div className="flex justify-center">
+                <div className="flex justify-center items-center min-h-screen">
                   <Loader2 className="h-6 w-6 animate-spin my-26" />
                 </div>
               }
