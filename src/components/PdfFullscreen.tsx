@@ -20,9 +20,6 @@ const PdfFullscreen = ({ fileUrl }: PdfFullscreenProps) => {
 
   const { width, ref } = useResizeDetector();
 
-  const onItemClick = ({ pageNumber }) =>
-  pageRefs.current[pageNumber].scrollIntoView({ behavior: 'smooth' });
-
   return (
     <Dialog
       open={isOpen}
@@ -56,12 +53,9 @@ const PdfFullscreen = ({ fileUrl }: PdfFullscreenProps) => {
               onLoadSuccess={({ numPages }) => setNumPages(numPages)}
               file={fileUrl}
               className="max-h-full"
-              onItemClick={onItemClick}
             >
               {new Array(numPages).fill(0).map((_, i) => (
-                  <div key={i} ref={el => { pageRefs.current[i + 1] = el; }}>
                 <Page key={i} width={width ? width : 1} pageNumber={i + 1} />
-                </div>
               ))}
             </Document>
           </div>
