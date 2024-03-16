@@ -1,5 +1,6 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { Metadata } from "next";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -10,4 +11,48 @@ export function absoluteUrl(pathname: string) {
   if (process.env.VERCEL_ENV)
     return `https://${process.env.VERCEL_ENV}${pathname}`;
   return `http://localhost:${process.env.PORT ?? 3000}${pathname}`;
+}
+
+export function constructMetadata({
+  title = "PdfWave - the SaaS for students",
+  description = "PdfWave is an open-source software to make chatting to your PDF files easy.",
+  image = "/thumbnail.png",
+  icons = "/favicon.ico",
+  noIndex = false,
+}: {
+  title?: string;
+  description?: string;
+  image?: string;
+  icons?: string;
+  noIndex?: boolean;
+} = {}): Metadata {
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      images: [
+        {
+          url: image,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [image],
+      creator: "@shivrajnag",
+    },
+    icons,
+    metadataBase: new URL("https://pdfwave.vercel.app"),
+    themeColor: "#FFF",
+    ...(noIndex && {
+      robots: {
+        index: false,
+        follow: false,
+      },
+    }),
+  };
 }

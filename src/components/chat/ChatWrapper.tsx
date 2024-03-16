@@ -8,12 +8,14 @@ import { trpc } from "../../app/_trpc/client";
 import Link from "next/link";
 import { buttonVariants } from "../ui/button";
 import { ChatContextProvider } from "./ChatContext";
+import { PLANS } from "../../config/stripe";
 
 type Props = {
   fileId: string;
+  isSubscribed: boolean;
 };
 
-function ChatWrapper({ fileId }: Props) {
+function ChatWrapper({ fileId, isSubscribed }: Props) {
   const { data, isLoading } = trpc.getFileUploadStatus.useQuery(
     {
       fileId,
@@ -62,7 +64,7 @@ function ChatWrapper({ fileId }: Props) {
           <div className="flex flex-col items-center gap-2">
             <XCircle className="h-8 w-8 text-red-500" />
             <h3 className="font-semibold text-xl">Too many pages in PDF</h3>
-            {/* <p className="text-zinc-500 text-sm">
+            <p className="text-zinc-500 text-sm">
               Your{" "}
               <span className="font-medium">
                 {isSubscribed ? "Pro" : "Free"}
@@ -72,7 +74,7 @@ function ChatWrapper({ fileId }: Props) {
                 ? PLANS.find((p) => p.name === "Pro")?.pagesPerPdf
                 : PLANS.find((p) => p.name === "Free")?.pagesPerPdf}{" "}
               pages per PDF.
-            </p> */}
+            </p>
             <Link
               href="/dashboard"
               className={buttonVariants({

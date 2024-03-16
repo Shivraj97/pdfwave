@@ -13,6 +13,7 @@ import { Icons } from "./Icons";
 import Link from "next/link";
 import { LogoutLink } from "@kinde-oss/kinde-auth-nextjs/server";
 import { Gem } from "lucide-react";
+import { getUserSubscriptionPlan } from "../lib/stripe";
 
 type Props = {
   name: string;
@@ -20,7 +21,8 @@ type Props = {
   imageUrl: string;
 };
 
-function UserAccountNav({ name, email, imageUrl }: Props) {
+async function UserAccountNav({ name, email, imageUrl }: Props) {
+  const subscriptionPlan = await getUserSubscriptionPlan();
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild className="overflow-visible">
@@ -62,7 +64,7 @@ function UserAccountNav({ name, email, imageUrl }: Props) {
           <Link href="/dashboard">Dashboard</Link>
         </DropdownMenuItem>
 
-        {/* <DropdownMenuItem asChild>
+        <DropdownMenuItem asChild>
           {subscriptionPlan?.isSubscribed ? (
             <Link href="/dashboard/billing">Manage Subscription</Link>
           ) : (
@@ -70,7 +72,7 @@ function UserAccountNav({ name, email, imageUrl }: Props) {
               Upgrade <Gem className="text-blue-600 h-4 w-4 ml-1.5" />
             </Link>
           )}
-        </DropdownMenuItem> */}
+        </DropdownMenuItem>
 
         <DropdownMenuSeparator />
 
