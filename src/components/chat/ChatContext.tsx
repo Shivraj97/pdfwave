@@ -48,12 +48,16 @@ export const ChatContextProvider = ({ fileId, children }: Props) => {
       setMessage("");
 
       // step 1
+      // Cancel any outgoing refetches
+      // (so they don't overwrite our optimistic update)
       await utils.getFileMessages.cancel();
 
       // step 2
+      // Snapshot the previous value
       const previousMessages = utils.getFileMessages.getInfiniteData();
 
       // step 3
+      // Optimistically update to the new value
       utils.getFileMessages.setInfiniteData(
         { fileId, limit: INFINITE_QUERY_LIMIT },
         (old) => {
